@@ -1,5 +1,5 @@
 # Android-WeatherApp
-Weather app for android using OpenWeatherMap api. Simple weather app that display weather of requested city.
+Weather app for android that uses OpenWeatherMap api. Simple weather app that display weather of requested city.
 
 Project is implemented by using the following libraris:
 - OpenWeatherMap Api - http://openweathermap.org/api
