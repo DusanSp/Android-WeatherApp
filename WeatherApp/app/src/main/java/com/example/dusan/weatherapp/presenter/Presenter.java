@@ -5,31 +5,28 @@ import com.example.dusan.weatherapp.model.DataManager;
 import com.example.dusan.weatherapp.model.WeatherResponse;
 import com.example.dusan.weatherapp.view.IView;
 import io.reactivex.Observable;
+import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
 
-/**
- * Created by Dusan on 05.Mar.17.
- */
 
-public class Presenter {
+public class Presenter implements IBasePresenter {
 
   private DataManager mDataManager;
   private IView view;
+  private Observable<WeatherResponse> responseObservable;
 
-  public Presenter(DataManager dataManager, IView view)
-  {
+  public Presenter(DataManager dataManager, IView view) {
     this.mDataManager = dataManager;
     this.view = view;
   }
 
-  public void featchWeatherFor(String cityName)
-  {
-    Observable<WeatherResponse> responseObservable = mDataManager.getWeather(cityName);
+  @Override
+  public void getData(String city) {
+    responseObservable = mDataManager.getWeather(city);
     responseObservable.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
-        .unsubscribeOn(Schedulers.io())
         .subscribe(
             new DisposableObserver<WeatherResponse>() {
 
@@ -42,6 +39,7 @@ public class Presenter {
               @Override
               public void onError(Throwable t) {
                 Log.d("onError", t.toString());
+                failedToGetData();
               }
 
               @Override
@@ -50,5 +48,25 @@ public class Presenter {
               }
             }
         );
+  }
+
+  @Override
+  public void unsubscribe() {
+    responseObservable.unsubscribeOn(Schedulers.io());
+  }
+
+  @Override
+  public void showLoadingData() {
+
+  }
+
+  @Override
+  public void hideLoadingData() {
+
+  }
+
+  @Override
+  public void failedToGetData() {
+
   }
 }
