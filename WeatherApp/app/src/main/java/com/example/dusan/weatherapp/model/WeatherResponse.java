@@ -3,7 +3,6 @@ package com.example.dusan.weatherapp.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import com.google.gson.internal.LinkedTreeMap;
 import java.util.ArrayList;
 
 public class WeatherResponse {
@@ -13,7 +12,7 @@ public class WeatherResponse {
   @SerializedName("weather")
   private ArrayList weatherList;
   @SerializedName("main")
-  private Main mainParametars;
+  private MainWeatherData mWeatherData;
 
 
   public Coordinate getCoordinate() {
@@ -32,11 +31,11 @@ public class WeatherResponse {
     this.weatherList = weather;
   }
 
-  public Main getMainParametars() {
-    return mainParametars;
+  public MainWeatherData getWeatherData() {
+    return mWeatherData;
   }
 
-  public void setMainParametars(Main mainParametars) {
-    this.mainParametars = mainParametars;
+  public void setWeatherData(MainWeatherData mWeatherData) {
+    this.mWeatherData = mWeatherData;
   }
 }

@@ -5,7 +5,6 @@ import com.example.dusan.weatherapp.model.DataManager;
 import com.example.dusan.weatherapp.model.WeatherResponse;
 import com.example.dusan.weatherapp.view.IView;
 import io.reactivex.Observable;
-import io.reactivex.Scheduler;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.observers.DisposableObserver;
 import io.reactivex.schedulers.Schedulers;
@@ -23,8 +22,8 @@ public class Presenter implements IBasePresenter {
   }
 
   @Override
-  public void getData(String city) {
-    responseObservable = mDataManager.getWeather(city);
+  public void getWeatherForCity(String city) {
+    responseObservable = mDataManager.getWeatherData(city);
     responseObservable.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
         .subscribe(
@@ -39,7 +38,7 @@ public class Presenter implements IBasePresenter {
               @Override
               public void onError(Throwable t) {
                 Log.d("onError", t.toString());
-                failedToGetData();
+                failedToGetDataForCity();
               }
 
               @Override
@@ -56,17 +55,17 @@ public class Presenter implements IBasePresenter {
   }
 
   @Override
-  public void showLoadingData() {
+  public void showLoading() {
 
   }
 
   @Override
-  public void hideLoadingData() {
+  public void hideLoading() {
 
   }
 
   @Override
-  public void failedToGetData() {
+  public void failedToGetDataForCity() {
 
   }
 }

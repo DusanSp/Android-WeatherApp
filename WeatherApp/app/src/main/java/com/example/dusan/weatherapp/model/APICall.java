@@ -9,5 +9,5 @@ public interface APICall {
 
 
     @GET("weather?&units=metric")
-    Observable<WeatherResponse> getWeather(@Query("q") String city, @Query("APPID") String api);
+    Observable<WeatherResponse> getWeatherCall(@Query("q") String city, @Query("APPID") String api);
 }
