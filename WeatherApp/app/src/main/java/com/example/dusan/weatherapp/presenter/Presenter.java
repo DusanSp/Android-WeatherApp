@@ -23,6 +23,9 @@ public class Presenter implements IBasePresenter {
 
   @Override
   public void getWeatherForCity(String city) {
+
+    showLoading();
+
     responseObservable = mDataManager.getWeatherData(city);
     responseObservable.subscribeOn(Schedulers.io())
         .observeOn(AndroidSchedulers.mainThread())
@@ -38,12 +41,14 @@ public class Presenter implements IBasePresenter {
               @Override
               public void onError(Throwable t) {
                 Log.d("onError", t.toString());
+                hideLoading();
                 failedToGetDataForCity();
               }
 
               @Override
               public void onComplete() {
                 Log.d("TAG", "onComplete");
+                hideLoading();
               }
             }
         );
@@ -56,16 +61,16 @@ public class Presenter implements IBasePresenter {
 
   @Override
   public void showLoading() {
-
+    view.showLoadingDialog();
   }
 
   @Override
   public void hideLoading() {
-
+    view.hideLoadingDialog();
   }
 
   @Override
   public void failedToGetDataForCity() {
-
+    view.errorLoadingData();
   }
 }

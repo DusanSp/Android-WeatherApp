@@ -1,12 +1,17 @@
 package com.example.dusan.weatherapp;
 
 import android.app.Activity;
+import android.app.ProgressDialog;
+import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethod;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -28,7 +33,7 @@ public class MainActivity extends Activity implements IView {
   @BindView(R.id.icon)
   ImageView weatherIcon;
   @BindView(R.id.pressure)
-  TextView mPressuer;
+  TextView mPressure;
   @BindView(R.id.humidity)
   TextView mHumidity;
   @BindView(R.id.search)
@@ -41,6 +46,7 @@ public class MainActivity extends Activity implements IView {
   TextView mDetail;
 
   private Presenter presenter;
+  private ProgressDialog mProgressDialog;
 
 
   @Override
@@ -49,6 +55,9 @@ public class MainActivity extends Activity implements IView {
     setContentView(R.layout.activity_main);
 
     ButterKnife.bind(this);
+
+    mWeatherLayout.setVisibility(View.INVISIBLE);
+
     DataManager dataManager = new DataManager();
     presenter = new Presenter(dataManager, this);
   }
@@ -59,7 +68,7 @@ public class MainActivity extends Activity implements IView {
     mCurrentTemp.setText(String.valueOf(response.getWeatherData().getTemp()) + "℃");
     mMaxTemp.setText(String.valueOf(response.getWeatherData().getTemp_max()) + "℃");
     mMinTemp.setText(String.valueOf(response.getWeatherData().getTemp_min()) + "℃");
-    mPressuer.setText(String.valueOf(response.getWeatherData().getPressure()) + " hPa");
+    mPressure.setText(String.valueOf(response.getWeatherData().getPressure()) + " hPa");
     mHumidity.setText(String.valueOf(response.getWeatherData().getHumidity()) + " %");
 
     Object weatherDetail = response.getWeather().get(0);
@@ -71,18 +80,62 @@ public class MainActivity extends Activity implements IView {
         .load("http://openweathermap.org/img/w/" + iconURL + ".png").into(weatherIcon);
   }
 
+  @Override
+  public void showLoadingDialog() {
+    if (mProgressDialog == null) {
+      mProgressDialog = new ProgressDialog(this);
+      mProgressDialog.setTitle("Weather App");
+      mProgressDialog.setMessage("Loading...");
+    }
+    mProgressDialog.show();
+  }
+
+  @Override
+  public void hideLoadingDialog() {
+    mProgressDialog.hide();
+    mWeatherLayout.setVisibility(View.VISIBLE);
+  }
+
+  @Override
+  public void errorLoadingData() {
+    mWeatherLayout.setVisibility(View.INVISIBLE);
+    Toast.makeText(this,
+        "Error loading data, please try again.",
+        Toast.LENGTH_SHORT)
+        .show();
+  }
+
   @OnClick(R.id.btn_search)
   public void onClickSearch() {
     String city = mSearchText.getText().toString();
     mSearchText.setText("");
-    mSearchText.clearFocus();
-    mWeatherLayout.setVisibility(View.VISIBLE); // TODO: Prebaciti u metodu kaja gasi loader indikator
-    mCityName.setText(city);
+    clearFocusAndHideInput();
+    mCityName.setText(city.toUpperCase());
     presenter.getWeatherForCity(city);
+  }
+
+  private void clearFocusAndHideInput() {
+    mSearchText.clearFocus();
+    mSearchText.setFocusable(false);
+    mSearchText.setFocusableInTouchMode(false);
+    InputMethodManager imm =
+        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.toggleSoftInput(InputMethodManager.HIDE_IMPLICIT_ONLY, 0);
+  }
+
+  @OnClick(R.id.search)
+  public void onEditTextClick(View v) {
+    mSearchText.setFocusableInTouchMode(true);
+    mSearchText.setFocusable(true);
+
+    InputMethodManager imm =
+        (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
+    imm.showSoftInput(v, InputMethod.SHOW_EXPLICIT);
   }
 
   @Override
   protected void onDestroy() {
+    mProgressDialog.dismiss();
     presenter.unsubscribe();
     super.onDestroy();
   }
